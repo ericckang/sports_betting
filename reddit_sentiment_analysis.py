@@ -7,11 +7,7 @@ import concurrent.futures
 class RedditSentimentAnalyzer:
     def __init__(self):
         # Store API credentials as class attributes
-        self.client_id = 'XIgfto1y0uEAErOV4tZs5A'
-        self.client_secret = 'g6IaoTPgNqNuRJy1lcX_NLua0a7iIg'
-        self.user_agent = 'redditdev scraper by u/senblank'
-        self.username = 'senblank'
-        self.password = 'Kangmimi1228'
+     
 
         # Initialize the Reddit instance within the class
         self.reddit = praw.Reddit(client_id=self.client_id,
