@@ -1,0 +1,7 @@
+Flask
+praw
+textblob
+xgboost
+scikit-learn
+openai
+numpy
