@@ -1,7 +1,6 @@
 import xgboost as xgb
 from api_keys import XGBOOST_MODEL_PATH
 
-
 class XGBoostPredictor:
     def __init__(self, model_path=XGBOOST_MODEL_PATH):
         self.model = self.load_model(model_path)
@@ -12,11 +11,12 @@ class XGBoostPredictor:
         return model
 
     def preprocess_data(self, data):
-        # data is expected to be in a numeric format (list or numpy array)
+        # data is expected to be numeric
         dmatrix = xgb.DMatrix(data)
         return dmatrix
 
     def predict(self, data):
         preprocessed_data = self.preprocess_data(data)
         predictions = self.model.predict(preprocessed_data)
+        # Returns a single probability per sample for binary:logistic
         return predictions

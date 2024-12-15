@@ -1,4 +1,3 @@
-# main.py
 from reddit_sentiment_analysis import RedditSentimentAnalyzer
 from data_preprocessor import DataPreprocessor
 from model_trainer import ModelTrainer

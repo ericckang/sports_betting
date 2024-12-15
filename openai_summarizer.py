@@ -6,6 +6,7 @@ class OpenAISummarizer:
         openai.api_key = OPENAI_API_KEY
 
     def summarize(self, team1, team2, sentiment_team1, sentiment_team2, prediction):
+        # prediction is now a list: [team1_prob, team2_prob]
         prompt = f"""
 Teams: {team1} vs {team2}
 Team 1 Sentiment: {sentiment_team1}

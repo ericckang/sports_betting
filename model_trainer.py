@@ -1,5 +1,3 @@
-# model_trainer.py
-# This class handles generating training data, training the model, and saving it.
 import random
 import numpy as np
 import xgboost as xgb
@@ -13,20 +11,18 @@ class ModelTrainer:
         self.model_path = model_path
 
     def generate_dummy_data(self, n_samples=50):
-        # Generate synthetic historical matches.
         data = []
         for _ in range(n_samples):
             team1, team2 = random.sample(self.data_preprocessor.teams, 2)
             sentiment_t1 = self.sentiment_fetcher.get_team_sentiment("nba", team1, limit=5)
             sentiment_t2 = self.sentiment_fetcher.get_team_sentiment("nba", team2, limit=5)
 
-            # Probability of team1 winning influenced by sentiment difference
             p_team1_win = 0.5 + (sentiment_t1 - sentiment_t2) * 0.2
             p_team1_win = max(0, min(1, p_team1_win))
             winner = 1 if random.random() < p_team1_win else 0
 
             features = self.data_preprocessor.create_feature_vector(team1, team2, sentiment_t1, sentiment_t2)
-            data.append((features[0], winner))  # features is (1, n), we store as 1D
+            data.append((features[0], winner))
 
         X = np.array([row[0] for row in data])
         y = np.array([row[1] for row in data])

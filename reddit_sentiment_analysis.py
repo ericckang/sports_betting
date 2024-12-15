@@ -1,4 +1,3 @@
-# reddit_sentiment_analysis.py
 import praw
 from textblob import TextBlob
 from datetime import datetime, timedelta

@@ -13,25 +13,27 @@ def predict():
 
     # Sentiment Analysis
     analyzer = RedditSentimentAnalyzer()
-    sentiment_team1 = analyzer.get_sentiment_scores("nba", team1, limit=100)
-    sentiment_team2 = analyzer.get_sentiment_scores("nba", team2, limit=100)
+    sentiment_team1 = analyzer.get_team_sentiment("nba", team1, limit=100)
+    sentiment_team2 = analyzer.get_team_sentiment("nba", team2, limit=100)
 
     # If no sentiment found, default to 0.0
     sentiment_team1 = sentiment_team1 if sentiment_team1 is not None else 0.0
     sentiment_team2 = sentiment_team2 if sentiment_team2 is not None else 0.0
 
     # Prepare data for prediction
-    preprocessor = DataPreprocessor()
-    input_data = preprocessor.prepare_input(sentiment_team1, sentiment_team2)
+    all_teams = ["lakers", "warriors", "celtics", "nets", "bucks", "heat", "suns", "clippers"]
+    preprocessor = DataPreprocessor(all_teams)
+    input_data = preprocessor.create_feature_vector(team1, team2, sentiment_team1, sentiment_team2)
 
-    # Predict probabilities
+    # Predict probability of team1 winning
     predictor = XGBoostPredictor()
     prediction = predictor.predict(input_data)
-    # Assume prediction gives a single set of probabilities [p_team1, p_team2]
+    team1_prob = float(prediction[0])
+    team2_prob = 1.0 - team1_prob
 
     # Summarize results
     summarizer = OpenAISummarizer()
-    summary = summarizer.summarize(team1, team2, sentiment_team1, sentiment_team2, prediction[0:2])
+    summary = summarizer.summarize(team1, team2, sentiment_team1, sentiment_team2, [team1_prob, team2_prob])
 
     # Return JSON response
     response = {
@@ -39,8 +41,8 @@ def predict():
         "team2": team2,
         "team1_sentiment": sentiment_team1,
         "team2_sentiment": sentiment_team2,
-        "predicted_probability_team1": float(prediction[0]),
-        "predicted_probability_team2": float(prediction[1]),
+        "predicted_probability_team1": team1_prob,
+        "predicted_probability_team2": team2_prob,
         "suggested_bet_summary": summary
     }
 
