@@ -9,4 +9,4 @@ REDDIT_PASSWORD = "reddit_password"
 OPENAI_API_KEY = "openai_api_key"
 
 # XGBoost Model Path
-XGBOOST_MODEL_PATH = "path/to/xgboost_model.bin"
+XGBOOST_MODEL_PATH = "xgboost_model.bin"
