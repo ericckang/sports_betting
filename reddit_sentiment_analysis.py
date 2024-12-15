@@ -1,42 +1,41 @@
+# reddit_sentiment_analysis.py
 import praw
 from textblob import TextBlob
 from datetime import datetime, timedelta
 import concurrent.futures
-
+from api_keys import (REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET,
+                      REDDIT_USER_AGENT, REDDIT_USERNAME, REDDIT_PASSWORD)
 
 class RedditSentimentAnalyzer:
     def __init__(self):
-        # Store API credentials as class attributes
-     
+        self.reddit = praw.Reddit(
+            client_id=REDDIT_CLIENT_ID,
+            client_secret=REDDIT_CLIENT_SECRET,
+            user_agent=REDDIT_USER_AGENT,
+            username=REDDIT_USERNAME,
+            password=REDDIT_PASSWORD
+        )
 
-        # Initialize the Reddit instance within the class
-        self.reddit = praw.Reddit(client_id=self.client_id,
-                                  client_secret=self.client_secret,
-                                  user_agent=self.user_agent,
-                                  username=self.username,
-                                  password=self.password)
-
-    def analyze_post_sentiment(self, submission, three_months_ago):
+    def _analyze_post_sentiment(self, submission, three_months_ago):
         submission_time = datetime.fromtimestamp(submission.created_utc)
         if submission_time > three_months_ago:
-            analysis = TextBlob(submission.title).sentiment.polarity
-            return analysis
+            score = TextBlob(submission.title).sentiment.polarity
+            return score
         return 0
 
-    def get_sentiment_scores(self, subreddit_name, team_name, limit=None):
-        subreddit = self.reddit.subreddit(subreddit_name)
+    def get_team_sentiment(self, subreddit_name, team_name, limit=50):
         three_months_ago = datetime.utcnow() - timedelta(days=90)
-        submissions = [submission for submission in subreddit.search(team_name, limit=limit)
-                       if datetime.fromtimestamp(submission.created_utc) > three_months_ago]
+        subreddit = self.reddit.subreddit(subreddit_name)
+        submissions = [s for s in subreddit.search(team_name, limit=limit)
+                       if datetime.fromtimestamp(s.created_utc) > three_months_ago]
+
+        if not submissions:
+            return 0.0
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            sentiment_scores = list(
-                executor.map(lambda submission: self.analyze_post_sentiment(submission, three_months_ago), submissions))
+            scores = list(executor.map(lambda s: self._analyze_post_sentiment(s, three_months_ago), submissions))
 
-        sentiment_scores = [score for score in sentiment_scores if score != 0]
-        if sentiment_scores:
-            overall_sentiment = sum(sentiment_scores) / len(sentiment_scores)
-        else:
-            overall_sentiment = None
-
-        return overall_sentiment
+        scores = [sc for sc in scores if sc != 0]
+        if len(scores) == 0:
+            return 0.0
+        return sum(scores) / len(scores)
